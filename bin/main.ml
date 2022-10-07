@@ -13,6 +13,11 @@ let inf_ex_add : string = inference ex_add
 let ex_add_ko : lterm = Add (Cst (Cnat 40), Cst (Cbool false))
 let inf_ex_add_ko : string = inference ex_add_ko
 
+let ex_not : lterm = Unop (Unot, Cst (Cbool true))
+let inf_ex_not : string = inference ex_not
+let ex_not_ko : lterm = Unop (Unot, Cst (Cnat 42))
+let inf_ex_not_ko : string = inference ex_not_ko
+
 let ex_id : lterm = Abs ("x", Var "x")
 let inf_ex_id : string = inference ex_id
 let ex_k : lterm = Abs ("x", Abs ("y", Var "x"))
@@ -38,6 +43,11 @@ let main () =
   print_endline inf_ex_add;
   print_endline "======================";
   print_endline inf_ex_add_ko;
+  print_endline "======================";
+
+  print_endline inf_ex_not;
+  print_endline "======================";
+  print_endline inf_ex_not_ko;
   print_endline "======================";
 
   print_endline inf_ex_id;

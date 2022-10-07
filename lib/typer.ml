@@ -14,6 +14,7 @@ let rec print_term (t : lterm) : string =
   | Var x -> x
   | App (t1, t2) -> "(" ^ (print_term t1) ^" "^ (print_term t2) ^ ")"
   | Abs (x, t) -> "(fun "^ x ^" -> " ^ (print_term t) ^")" 
+  | Unop (Unot,t) -> "not " ^ print_term t
   | Add (t1, t2) -> "(" ^ (print_term t1) ^" + "^ (print_term t2) ^ ")"
 
 (* Type pretty printer *)
@@ -73,6 +74,7 @@ let rec genere_equa (te : lterm) (ty : typ) (e : env) : equa =
       (ty, Arr (Var nv1, Var nv2))::(genere_equa t (Var nv2) ((x, Var nv1)::e))  
   | Cst (Cnat _) -> [(ty, Nat)]
   | Cst (Cbool _) -> [(ty, Bool)]
+  | Unop (Unot, t) -> (ty, Bool)::(genere_equa t Bool e)
   | Add (t1, t2) ->
       let eq1 : equa = genere_equa t1 Nat e in
       let eq2 : equa = genere_equa t2 Nat e in (ty, Nat)::(eq1 @ eq2)
