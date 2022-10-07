@@ -1,9 +1,18 @@
 open Lib.Typer
 open Lib.Ast
 
-(* ***EXEMPLES*** *)  
+(* examples *)
+
 let ex_nat : lterm = Cst (Cnat 42)
 let inf_ex_nat : string = inference ex_nat
+let ex_bool : lterm = Cst (Cbool true)
+let inf_ex_bool : string = inference ex_bool
+
+let ex_add : lterm = Add (Cst (Cnat 40), Cst (Cnat 2))
+let inf_ex_add : string = inference ex_add
+let ex_add_ko : lterm = Add (Cst (Cnat 40), Cst (Cbool false))
+let inf_ex_add_ko : string = inference ex_add_ko
+
 let ex_id : lterm = Abs ("x", Var "x")
 let inf_ex_id : string = inference ex_id
 let ex_k : lterm = Abs ("x", Abs ("y", Var "x"))
@@ -23,6 +32,14 @@ let main () =
   print_newline ();
   print_endline inf_ex_nat;
   print_endline "======================";
+  print_endline inf_ex_bool;
+  print_endline "======================";
+
+  print_endline inf_ex_add;
+  print_endline "======================";
+  print_endline inf_ex_add_ko;
+  print_endline "======================";
+
   print_endline inf_ex_id;
   print_endline "======================";
   print_endline inf_ex_k;

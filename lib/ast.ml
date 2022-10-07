@@ -1,4 +1,5 @@
 type constant =
+  | Cbool of bool
   | Cnat of int
 
 (* Lambda terms *)
@@ -11,6 +12,7 @@ type lterm =
 
 (* Types *) 
 type typ =
+  | Bool
+  | Nat
   | Var of string
   | Arr of typ * typ
-  | Nat 

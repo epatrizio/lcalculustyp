@@ -1,56 +1,60 @@
 open Ast
 
-(* Environnements de typage *) 
+(* Typing environment *)
 type env = (string * typ) list
 
-(* Listes d'équations *) 
+(* Equation list *)
 type equa = (typ * typ) list
 
-(* pretty printer de termes*)     
+(* Term pretty printer *)
 let rec print_term (t : lterm) : string =
   match t with
-    Var x -> x
-    | App (t1, t2) -> "(" ^ (print_term t1) ^" "^ (print_term t2) ^ ")"
-    | Abs (x, t) -> "(fun "^ x ^" -> " ^ (print_term t) ^")" 
-    | Cst (Cnat n) -> string_of_int n
-    | Add (t1, t2) -> "(" ^ (print_term t1) ^" + "^ (print_term t2) ^ ")"
+  | Cst (Cnat n) -> string_of_int n
+  | Cst (Cbool b) -> string_of_bool b
+  | Var x -> x
+  | App (t1, t2) -> "(" ^ (print_term t1) ^" "^ (print_term t2) ^ ")"
+  | Abs (x, t) -> "(fun "^ x ^" -> " ^ (print_term t) ^")" 
+  | Add (t1, t2) -> "(" ^ (print_term t1) ^" + "^ (print_term t2) ^ ")"
 
-    (* pretty printer de types*)                    
+(* Type pretty printer *)
 let rec print_type (t : typ) : string =
   match t with
-    Var x -> x
-  | Arr (t1, t2) -> "(" ^ (print_type t1) ^" -> "^ (print_type t2) ^")"
-  | Nat -> "Nat" 
+  | Bool -> "Boolean"
+  | Nat -> "Nat"
+  | Var x -> x
+  | Arr (t1, t2) -> "(" ^ (print_type t1) ^ " -> " ^ (print_type t2) ^ ")"
 
 (* générateur de noms frais de variables de types *)
-let compteur_var : int ref = ref 0                    
+let compteur_var : int ref = ref 0
 
-let nouvelle_var () : string = compteur_var := !compteur_var + 1; 
-  "T"^(string_of_int !compteur_var)
+let nouvelle_var () : string =
+  compteur_var := !compteur_var + 1;
+  "T" ^ (string_of_int !compteur_var)
 
 exception VarPasTrouve
 
 (* cherche le type d'une variable dans un environnement *)
 let rec cherche_type (v : string) (e : env) : typ =
   match e with
-    [] -> raise VarPasTrouve
+  | [] -> raise VarPasTrouve
   | (v1, t1)::_ when v1 = v -> t1
   | (_, _):: q -> (cherche_type v q) 
 
 (* vérificateur d'occurence de variables *)  
 let rec appartient_type (v : string) (t : typ) : bool =
   match t with
-    Var v1 when v1 = v -> true
+  | Var v1 when v1 = v -> true
   | Arr (t1, t2) -> (appartient_type v t1) || (appartient_type v t2) 
   | _ -> false
 
 (* remplace une variable par un type dans type *)
 let rec substitue_type (t : typ) (v : string) (t0 : typ) : typ =
   match t with
-    Var v1 when v1 = v -> t0
+  | Bool -> Bool
+  | Nat -> Nat
+  | Var v1 when v1 = v -> t0
   | Var v2 -> Var v2
-  | Arr (t1, t2) -> Arr (substitue_type t1 v t0, substitue_type t2 v t0) 
-  | Nat -> Nat 
+  | Arr (t1, t2) -> Arr (substitue_type t1 v t0, substitue_type t2 v t0)
 
 (* remplace une variable par un type dans une liste d'équations*)
 let substitue_type_partout (e : equa) (v : string) (t0 : typ) : equa =
@@ -59,7 +63,7 @@ let substitue_type_partout (e : equa) (v : string) (t0 : typ) : equa =
 (* genere des equations de typage à partir d'un terme *)  
 let rec genere_equa (te : lterm) (ty : typ) (e : env) : equa =
   match te with 
-    Var v -> let tv : typ = cherche_type v e in [(ty, tv)] 
+  | Var v -> let tv : typ = cherche_type v e in [(ty, tv)]
   | App (t1, t2) -> let nv : string = nouvelle_var () in
       let eq1 : equa = genere_equa t1 (Arr (Var nv, ty)) e in
       let eq2 : equa = genere_equa t2 (Var nv) e in
@@ -67,11 +71,12 @@ let rec genere_equa (te : lterm) (ty : typ) (e : env) : equa =
   | Abs (x, t) -> let nv1 : string = nouvelle_var () 
       and nv2 : string = nouvelle_var () in
       (ty, Arr (Var nv1, Var nv2))::(genere_equa t (Var nv2) ((x, Var nv1)::e))  
-  | Cst _ -> [(ty, Nat)]
-  | Add (t1, t2) -> let eq1 : equa = genere_equa t1 Nat e in
-      let eq2 : equa = genere_equa t2 Nat e in
-      (ty, Nat)::(eq1 @ eq2)
-      
+  | Cst (Cnat _) -> [(ty, Nat)]
+  | Cst (Cbool _) -> [(ty, Bool)]
+  | Add (t1, t2) ->
+      let eq1 : equa = genere_equa t1 Nat e in
+      let eq2 : equa = genere_equa t2 Nat e in (ty, Nat)::(eq1 @ eq2)
+
 exception Echec_unif of string      
 
 (* zipper d'une liste d'équations *)
@@ -116,11 +121,12 @@ let rec unification (e : equa_zip) (but : string) : typ =
     (* types fleche à droite pas à gauche : echec  *)
   | (_, (t3, Arr (_,_))::_) -> raise (Echec_unif ("type fleche non-unifiable avec "^(print_type t3)))     
     (* types nat des deux cotes : on passe *)
-  | (e1, (Nat, Nat)::e2) -> unification (e1, e2) but 
+  | (e1, (Nat, Nat)::e2) -> unification (e1, e2) but
+  | (e1, (Bool, Bool)::e2) -> unification (e1, e2) but
     (* types nat à gauche pas à droite : échec *)
-  (* | (e1, (Nat, t3)::e2) -> raise (Echec_unif ("type entier non-unifiable avec "^(print_type t3)))      *)
+  | (_, (Nat, t3)::_) -> raise (Echec_unif ("type entier non-unifiable avec "^(print_type t3)))
     (* types à droite pas à gauche : échec *)
-  (* | (e1, (t3, Nat)::e2) -> raise (Echec_unif ("type entier non-unifiable avec "^(print_type t3)))      *)
+  | (_, (t3, Nat)::_) -> raise (Echec_unif ("type entier non-unifiable avec "^(print_type t3)))
                                        
 (* enchaine generation d'equation et unification *)                                   
 let inference (t : lterm) : string =
