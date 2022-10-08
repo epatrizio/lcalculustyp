@@ -7,6 +7,7 @@ type unop =
 
 type binop =
   | Add
+  | Sub
 
 (* Lambda terms *)
 type lterm =
