@@ -5,6 +5,9 @@ type constant =
 type unop =
   | Unot (* not e *)
 
+type binop =
+  | Add
+
 (* Lambda terms *)
 type lterm =
   | Cst of constant
@@ -12,7 +15,7 @@ type lterm =
   | App of lterm * lterm
   | Abs of string * lterm
   | Unop of unop * lterm
-  | Add of lterm * lterm
+  | Binop of binop * lterm * lterm
 
 (* Types *) 
 type typ =

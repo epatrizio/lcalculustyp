@@ -8,9 +8,9 @@ let inf_ex_nat : string = inference ex_nat
 let ex_bool : lterm = Cst (Cbool true)
 let inf_ex_bool : string = inference ex_bool
 
-let ex_add : lterm = Add (Cst (Cnat 40), Cst (Cnat 2))
+let ex_add : lterm = Binop (Add, Cst (Cnat 40), Cst (Cnat 2))
 let inf_ex_add : string = inference ex_add
-let ex_add_ko : lterm = Add (Cst (Cnat 40), Cst (Cbool false))
+let ex_add_ko : lterm = Binop (Add, Cst (Cnat 40), Cst (Cbool false))
 let inf_ex_add_ko : string = inference ex_add_ko
 
 let ex_not : lterm = Unop (Unot, Cst (Cbool true))
@@ -24,9 +24,9 @@ let ex_k : lterm = Abs ("x", Abs ("y", Var "x"))
 let inf_ex_k : string = inference ex_k
 let ex_s : lterm = Abs ("x", Abs ("y", Abs ("z", App (App (Var "x", Var "z"), App (Var "y", Var "z")))))
 let inf_ex_s : string = inference ex_s
-let ex_nat1 : lterm = App (Abs ("x", Add(Var "x", Cst (Cnat 1))), Cst (Cnat 3))
+let ex_nat1 : lterm = App (Abs ("x", Binop (Add, Var "x", Cst (Cnat 1))), Cst (Cnat 3))
 let inf_ex_nat1 : string = inference ex_nat1
-let ex_nat2 : lterm = Abs ("x", Add( Var "x", Var "x"))
+let ex_nat2 : lterm = Abs ("x", Binop (Add, Var "x", Var "x"))
 let inf_ex_nat2 : string = inference ex_nat2
 let ex_omega : lterm = App (Abs ("x", App (Var "x", Var "x")), Abs ("y", App (Var "y", Var "y")))
 let inf_ex_omega : string = inference ex_omega

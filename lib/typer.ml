@@ -12,10 +12,10 @@ let rec print_term (t : lterm) : string =
   | Cst (Cnat n) -> string_of_int n
   | Cst (Cbool b) -> string_of_bool b
   | Var x -> x
-  | App (t1, t2) -> "(" ^ (print_term t1) ^" "^ (print_term t2) ^ ")"
-  | Abs (x, t) -> "(fun "^ x ^" -> " ^ (print_term t) ^")" 
+  | App (t1, t2) -> "(" ^ (print_term t1) ^ " " ^ (print_term t2) ^ ")"
+  | Abs (x, t) -> "(fun " ^ x ^ " -> " ^ (print_term t) ^ ")"
   | Unop (Unot,t) -> "not " ^ print_term t
-  | Add (t1, t2) -> "(" ^ (print_term t1) ^" + "^ (print_term t2) ^ ")"
+  | Binop (Add, t1, t2) -> "(" ^ (print_term t1) ^ " + " ^ (print_term t2) ^ ")"
 
 (* Type pretty printer *)
 let rec print_type (t : typ) : string =
@@ -75,7 +75,7 @@ let rec genere_equa (te : lterm) (ty : typ) (e : env) : equa =
   | Cst (Cnat _) -> [(ty, Nat)]
   | Cst (Cbool _) -> [(ty, Bool)]
   | Unop (Unot, t) -> (ty, Bool)::(genere_equa t Bool e)
-  | Add (t1, t2) ->
+  | Binop (Add, t1, t2) ->
       let eq1 : equa = genere_equa t1 Nat e in
       let eq2 : equa = genere_equa t2 Nat e in (ty, Nat)::(eq1 @ eq2)
 
@@ -98,7 +98,7 @@ let substitue_type_zip (e : equa_zip) (v : string) (t0 : typ) : equa_zip =
 (* trouve un type associé à une variable dans un zipper d'équation *)
 let rec trouve_but (e : equa_zip) (but : string) = 
   match e with
-    (_, []) -> raise VarPasTrouve
+  | (_, []) -> raise VarPasTrouve
   | (_, (Var v, t)::_) when v = but -> t
   | (_, (t, Var v)::_) when v = but -> t 
   | (e1, c::e2) -> trouve_but (c::e1, e2) but 
@@ -107,7 +107,7 @@ let rec trouve_but (e : equa_zip) (but : string) =
 let rec unification (e : equa_zip) (but : string) : typ = 
   match e with 
     (* on a passé toutes les équations : succes *)
-    (_, []) -> (try trouve_but (rembobine e) but with VarPasTrouve -> raise (Echec_unif "but pas trouvé"))
+  | (_, []) -> (try trouve_but (rembobine e) but with VarPasTrouve -> raise (Echec_unif "but pas trouvé"))
     (* equation avec but : on passe *)
   | (e1, (Var v1, t2)::e2) when v1 = but ->  unification ((Var v1, t2)::e1, e2) but
     (* deux variables : remplacer l'une par l'autre *)
