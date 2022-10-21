@@ -33,6 +33,13 @@ let inf_ex_add_ko_2 : string = inference ex_add_ko_2
 let ex_add_ko_3 : lterm = App( App (Cst (Cop "+"), Cst (Cbool false)), Cst (Cnat 42))
 let inf_ex_add_ko_3 : string = inference ex_add_ko_3
 
+(* - *)
+let ex_sub : lterm = Cst (Cop "-")
+let inf_ex_sub : string = inference ex_sub
+(* - 44 2 *)
+let ex_sub_1 : lterm = App( App (Cst (Cop "-"), Cst (Cnat 44)), Cst (Cnat 2))
+let inf_ex_sub_1 : string = inference ex_sub_1
+
 let ex_id : lterm = Abs ("x", Var "x")
 let inf_ex_id : string = inference ex_id
 let ex_k : lterm = Abs ("x", Abs ("y", Var "x"))
@@ -73,6 +80,11 @@ let main () =
   print_endline inf_ex_add_ko_2;
   print_endline "======================";
   print_endline inf_ex_add_ko_3;
+  print_endline "======================";
+
+  print_endline inf_ex_sub;
+  print_endline "======================";
+  print_endline inf_ex_sub_1;
   print_endline "======================";
 
   print_endline inf_ex_id;
