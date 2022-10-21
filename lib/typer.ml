@@ -6,17 +6,20 @@ type env = (string * typ) list
 (* Equation list *)
 type equa = (typ * typ) list
 
-(* Term pretty printer *)
+(* exceptions *)
+exception VarNotFound
+exception UnifyError of string
+exception OperationNotFound of string
+
+(* Lambda term pretty printer *)
 let rec print_term (t : lterm) : string =
   match t with
   | Cst (Cnat n) -> string_of_int n
   | Cst (Cbool b) -> string_of_bool b
+  | Cst (Cop sop) -> sop
   | Var x -> x
-  | App (t1, t2) -> "(" ^ (print_term t1) ^ " " ^ (print_term t2) ^ ")"
-  | Abs (x, t) -> "(fun " ^ x ^ " -> " ^ (print_term t) ^ ")"
-  | Unop (Unot,t) -> "not " ^ print_term t
-  | Binop (Add, t1, t2) -> "(" ^ (print_term t1) ^ " + " ^ (print_term t2) ^ ")"
-  | Binop (Sub, t1, t2) -> "(" ^ (print_term t1) ^ " - " ^ (print_term t2) ^ ")"
+  | App (t1, t2) -> "(" ^ print_term t1 ^ " " ^ print_term t2 ^ ")"
+  | Abs (x, t) -> "(fun " ^ x ^ " -> " ^ print_term t ^ ")"
 
 (* Type pretty printer *)
 let rec print_type (t : typ) : string =
@@ -24,7 +27,7 @@ let rec print_type (t : typ) : string =
   | Bool -> "Boolean"
   | Nat -> "Nat"
   | Var x -> x
-  | Arr (t1, t2) -> "(" ^ (print_type t1) ^ " -> " ^ (print_type t2) ^ ")"
+  | Arr (t1, t2) -> "(" ^ print_type t1 ^ " -> " ^ print_type t2 ^ ")"
 
 (* générateur de noms frais de variables de types *)
 let compteur_var : int ref = ref 0
@@ -33,12 +36,10 @@ let nouvelle_var () : string =
   compteur_var := !compteur_var + 1;
   "T" ^ (string_of_int !compteur_var)
 
-exception VarPasTrouve
-
 (* cherche le type d'une variable dans un environnement *)
 let rec cherche_type (v : string) (e : env) : typ =
   match e with
-  | [] -> raise VarPasTrouve
+  | [] -> raise VarNotFound
   | (v1, t1)::_ when v1 = v -> t1
   | (_, _):: q -> (cherche_type v q) 
 
@@ -69,18 +70,16 @@ let rec genere_equa (te : lterm) (ty : typ) (e : env) : equa =
   | App (t1, t2) -> let nv : string = nouvelle_var () in
       let eq1 : equa = genere_equa t1 (Arr (Var nv, ty)) e in
       let eq2 : equa = genere_equa t2 (Var nv) e in
-      eq1 @ eq2
-  | Abs (x, t) -> let nv1 : string = nouvelle_var () 
-      and nv2 : string = nouvelle_var () in
-      (ty, Arr (Var nv1, Var nv2))::(genere_equa t (Var nv2) ((x, Var nv1)::e))  
+        eq1 @ eq2
+  | Abs (x, t) ->
+      let nv1 : string = nouvelle_var () and nv2 : string = nouvelle_var () in
+        (ty, Arr (Var nv1, Var nv2))::(genere_equa t (Var nv2) ((x, Var nv1)::e))
   | Cst (Cnat _) -> [(ty, Nat)]
   | Cst (Cbool _) -> [(ty, Bool)]
-  | Unop (Unot, t) -> (ty, Bool)::(genere_equa t Bool e)
-  | Binop (_, t1, t2) ->
-      let eq1 : equa = genere_equa t1 Nat e in
-      let eq2 : equa = genere_equa t2 Nat e in (ty, Nat)::(eq1 @ eq2)
-
-exception Echec_unif of string      
+  | Cst (Cop sop) ->
+      try
+        let typ = OperationTypeMap.find sop op_type_map in [(ty, typ)]
+      with Not_found -> raise (OperationNotFound sop)
 
 (* zipper d'une liste d'équations *)
 type equa_zip = equa * equa
@@ -99,7 +98,7 @@ let substitue_type_zip (e : equa_zip) (v : string) (t0 : typ) : equa_zip =
 (* trouve un type associé à une variable dans un zipper d'équation *)
 let rec trouve_but (e : equa_zip) (but : string) = 
   match e with
-  | (_, []) -> raise VarPasTrouve
+  | (_, []) -> raise VarNotFound
   | (_, (Var v, t)::_) when v = but -> t
   | (_, (t, Var v)::_) when v = but -> t 
   | (e1, c::e2) -> trouve_but (c::e1, e2) but 
@@ -108,32 +107,34 @@ let rec trouve_but (e : equa_zip) (but : string) =
 let rec unification (e : equa_zip) (but : string) : typ = 
   match e with 
     (* on a passé toutes les équations : succes *)
-  | (_, []) -> (try trouve_but (rembobine e) but with VarPasTrouve -> raise (Echec_unif "but pas trouvé"))
+  | (_, []) -> (try trouve_but (rembobine e) but with VarNotFound -> raise (UnifyError "but pas trouvé"))
     (* equation avec but : on passe *)
-  | (e1, (Var v1, t2)::e2) when v1 = but ->  unification ((Var v1, t2)::e1, e2) but
+  | (e1, (Var v1, t2)::e2) when v1 = but -> unification ((Var v1, t2)::e1, e2) but
     (* deux variables : remplacer l'une par l'autre *)
   | (e1, (Var v1, Var v2)::e2) ->  unification (substitue_type_zip (rembobine (e1,e2)) v2 (Var v1)) but
     (* une variable à gauche : vérification d'occurence puis remplacement *)
-  | (e1, (Var v1, t2)::e2) ->  if appartient_type v1 t2 then raise (Echec_unif ("occurence de "^ v1 ^" dans "^(print_type t2))) else  unification (substitue_type_zip (rembobine (e1,e2)) v1 t2) but
+  | (e1, (Var v1, t2)::e2) ->  if appartient_type v1 t2 then raise (UnifyError ("occurence de "^ v1 ^" dans "^(print_type t2))) else  unification (substitue_type_zip (rembobine (e1,e2)) v1 t2) but
     (* une variable à droite : vérification d'occurence puis remplacement *)
-  | (e1, (t1, Var v2)::e2) ->  if appartient_type v2 t1 then raise (Echec_unif ("occurence de "^ v2 ^" dans " ^(print_type t1))) else  unification (substitue_type_zip (rembobine (e1,e2)) v2 t1) but 
+  | (e1, (t1, Var v2)::e2) ->  if appartient_type v2 t1 then raise (UnifyError ("occurence de "^ v2 ^" dans " ^(print_type t1))) else  unification (substitue_type_zip (rembobine (e1,e2)) v2 t1) but 
+    (* Cas particulier des opérations *)
+  | (e1, (Arr (t1,t2),Arr (Arr (t3,t4), t5))::e2) -> unification (e1, (t1, t5)::(t2, Arr (t3,t4))::e2) but
     (* types fleche des deux cotes : on decompose  *)
-  | (e1, (Arr (t1,t2), Arr (t3, t4))::e2) -> unification (e1, (t1, t3)::(t2, t4)::e2) but 
+  | (e1, (Arr (t1,t2), Arr (t3, t4))::e2) -> unification (e1, (t1, t3)::(t2, t4)::e2) but
     (* types fleche à gauche pas à droite : echec  *)
-  | (_, (Arr (_,_), t3)::_) -> raise (Echec_unif ("type fleche non-unifiable avec "^(print_type t3)))     
+  | (_, (Arr (_,_), t3)::_) -> raise (UnifyError ("type fleche non-unifiable avec "^(print_type t3)))
     (* types fleche à droite pas à gauche : echec  *)
-  | (_, (t3, Arr (_,_))::_) -> raise (Echec_unif ("type fleche non-unifiable avec "^(print_type t3)))     
+  | (_, (t3, Arr (_,_))::_) -> raise (UnifyError ("type fleche non-unifiable avec "^(print_type t3)))     
     (* types nat des deux cotes : on passe *)
   | (e1, (Nat, Nat)::e2) -> unification (e1, e2) but
   | (e1, (Bool, Bool)::e2) -> unification (e1, e2) but
     (* types nat à gauche pas à droite : échec *)
-  | (_, (Nat, t3)::_) -> raise (Echec_unif ("type entier non-unifiable avec "^(print_type t3)))
+  | (_, (Nat, t3)::_) -> raise (UnifyError ("type entier non-unifiable avec "^(print_type t3)))
     (* types à droite pas à gauche : échec *)
-  | (_, (t3, Nat)::_) -> raise (Echec_unif ("type entier non-unifiable avec "^(print_type t3)))
-                                       
+  | (_, (t3, Nat)::_) -> raise (UnifyError ("type entier non-unifiable avec "^(print_type t3)))
+
 (* enchaine generation d'equation et unification *)                                   
 let inference (t : lterm) : string =
   let e : equa_zip = ([], genere_equa t (Var "but") []) in
   try (let res = unification e "but" in
        (print_term t)^" ***TYPABLE*** avec le type "^(print_type res))
-  with Echec_unif bla -> (print_term t)^" ***PAS TYPABLE*** : "^bla
+  with UnifyError bla -> (print_term t)^" ***PAS TYPABLE*** : "^bla

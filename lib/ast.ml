@@ -1,13 +1,7 @@
 type constant =
   | Cbool of bool
   | Cnat of int
-
-type unop =
-  | Unot (* not e *)
-
-type binop =
-  | Add
-  | Sub
+  | Cop of string
 
 (* Lambda terms *)
 type lterm =
@@ -15,8 +9,6 @@ type lterm =
   | Var of string
   | App of lterm * lterm
   | Abs of string * lterm
-  | Unop of unop * lterm
-  | Binop of binop * lterm * lterm
 
 (* Types *) 
 type typ =
@@ -24,3 +16,9 @@ type typ =
   | Nat
   | Var of string
   | Arr of typ * typ
+
+(* Operation types *)
+module OperationTypeMap = Map.Make(String)
+let op_type_map = OperationTypeMap.empty
+let op_type_map = OperationTypeMap.add "+" (Arr ( Arr (Nat, Nat), Nat)) op_type_map
+let op_type_map = OperationTypeMap.add "not" (Arr (Bool, Bool)) op_type_map
