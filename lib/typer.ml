@@ -28,6 +28,7 @@ let rec print_type (t : typ) : string =
   | Nat -> "Nat"
   | Var x -> x
   | Arr (t1, t2) -> "(" ^ print_type t1 ^ " -> " ^ print_type t2 ^ ")"
+  | List t -> print_type t ^ " list"
 
 (* générateur de noms frais de variables de types *)
 let compteur_var : int ref = ref 0
@@ -58,6 +59,7 @@ let rec substitue_type (t : typ) (v : string) (t0 : typ) : typ =
   | Var v1 when v1 = v -> t0
   | Var v2 -> Var v2
   | Arr (t1, t2) -> Arr (substitue_type t1 v t0, substitue_type t2 v t0)
+  | List t1 -> List (substitue_type t1 v t0)
 
 (* remplace une variable par un type dans une liste d'équations*)
 let substitue_type_partout (e : equa) (v : string) (t0 : typ) : equa =
@@ -124,7 +126,10 @@ let rec unification (e : equa_zip) (but : string) : typ =
   | (_, (Arr (_,_), t3)::_) -> raise (UnifyError ("type fleche non-unifiable avec "^(print_type t3)))
     (* types fleche à droite pas à gauche : echec  *)
   | (_, (t3, Arr (_,_))::_) -> raise (UnifyError ("type fleche non-unifiable avec "^(print_type t3)))     
-    (* types nat des deux cotes : on passe *)
+  (* List *)
+  | (e1, (t1, List t2)::e2) -> unification (e1, (t1, t2)::e2) but
+  | (e1, (List t1, t2)::e2) -> unification (e1, (t1, t2)::e2) but
+  (* types nat des deux cotes : on passe *)
   | (e1, (Nat, Nat)::e2) -> unification (e1, e2) but
   | (e1, (Bool, Bool)::e2) -> unification (e1, e2) but
     (* types nat à gauche pas à droite : échec *)
