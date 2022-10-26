@@ -118,18 +118,17 @@ let rec unification (e : equa_zip) (but : string) : typ =
   | (e1, (Var v1, t2)::e2) ->  if appartient_type v1 t2 then raise (UnifyError ("occurence de "^ v1 ^" dans "^(print_type t2))) else  unification (substitue_type_zip (rembobine (e1,e2)) v1 t2) but
     (* une variable à droite : vérification d'occurence puis remplacement *)
   | (e1, (t1, Var v2)::e2) ->  if appartient_type v2 t1 then raise (UnifyError ("occurence de "^ v2 ^" dans " ^(print_type t1))) else  unification (substitue_type_zip (rembobine (e1,e2)) v2 t1) but 
-    (* Cas particulier des opérations *)
-  | (e1, (Arr (t1,t2),Arr (Arr (t3,t4), t5))::e2) -> unification (e1, (t1, t5)::(t2, Arr (t3,t4))::e2) but
     (* types fleche des deux cotes : on decompose  *)
   | (e1, (Arr (t1,t2), Arr (t3, t4))::e2) -> unification (e1, (t1, t3)::(t2, t4)::e2) but
     (* types fleche à gauche pas à droite : echec  *)
   | (_, (Arr (_,_), t3)::_) -> raise (UnifyError ("type fleche non-unifiable avec "^(print_type t3)))
     (* types fleche à droite pas à gauche : echec  *)
   | (_, (t3, Arr (_,_))::_) -> raise (UnifyError ("type fleche non-unifiable avec "^(print_type t3)))     
-  (* List *)
-  | (e1, (t1, List t2)::e2) -> unification (e1, (t1, t2)::e2) but
-  | (e1, (List t1, t2)::e2) -> unification (e1, (t1, t2)::e2) but
-  (* types nat des deux cotes : on passe *)
+    (* List *)
+  | (e1, (List t1, List t2)::e2) -> unification (e1, (t1, t2)::e2) but
+  | (_, (t, List _)::_) -> raise (UnifyError ("type list non-unifiable avec "^print_type t))
+  | (_, (List _, t)::_) -> raise (UnifyError ("type list non-unifiable avec "^print_type t))
+    (* types nat des deux cotes : on passe *)
   | (e1, (Nat, Nat)::e2) -> unification (e1, e2) but
   | (e1, (Bool, Bool)::e2) -> unification (e1, e2) but
     (* types nat à gauche pas à droite : échec *)

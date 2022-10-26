@@ -21,8 +21,9 @@ type typ =
 (* Operation types *)
 module OperationTypeMap = Map.Make(String)
 let op_type_map = OperationTypeMap.empty
-let op_type_map = OperationTypeMap.add "+" (Arr ( Arr (Nat, Nat), Nat)) op_type_map
-let op_type_map = OperationTypeMap.add "-" (Arr ( Arr (Nat, Nat), Nat)) op_type_map
+let op_type_map = OperationTypeMap.add "+" (Arr (Nat, Arr (Nat, Nat))) op_type_map
+let op_type_map = OperationTypeMap.add "-" (Arr (Nat, Arr (Nat, Nat))) op_type_map
 let op_type_map = OperationTypeMap.add "not" (Arr (Bool, Bool)) op_type_map
 let op_type_map = OperationTypeMap.add "[]" (List (Var "a")) op_type_map
-let op_type_map = OperationTypeMap.add "::" (Arr ( Arr (Var "a", List (Var "a")), List (Var "a"))) op_type_map
+let op_type_map = OperationTypeMap.add "::" (Arr (Var "a", Arr (List (Var "a"), List (Var "a")))) op_type_map
+let op_type_map = OperationTypeMap.add "hd" (Arr (List (Var "a"), Var "a")) op_type_map

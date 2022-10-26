@@ -55,13 +55,16 @@ let inf_ex_omega : string = inference ex_omega
 let ex_nat3 : lterm = App (ex_nat2, ex_id)
 let inf_ex_nat3 : string = inference ex_nat3
 
+(* lists *)
 let ex_list_empty : lterm = Cst (Cop "[]")
 let inf_ex_list_empty : string = inference ex_list_empty
+let ex_list_cons : lterm = Cst (Cop "::")
+let inf_ex_list_cons : string = inference ex_list_cons
 let ex_list_1 : lterm = App( App (Cst (Cop "::"), Cst (Cbool true)), Cst (Cop "[]"))
 let inf_ex_list_1 : string = inference ex_list_1
 let ex_list_2 : lterm = App( App (Cst (Cop "::"), Cst (Cnat 42)), Cst (Cop "[]"))
 let inf_ex_list_2 : string = inference ex_list_2
-let ex_list_3 : lterm =   (*2::40::[]*)
+let ex_list_3 : lterm =   (* 2::40::[] *)
   App(
     App (
       Cst (Cop "::"), Cst (Cnat 2)
@@ -74,7 +77,7 @@ let ex_list_3 : lterm =   (*2::40::[]*)
     )    
   )
 let inf_ex_list_3 : string = inference ex_list_3
-let ex_list_4 : lterm =
+let ex_list_4 : lterm =   (* 42::false::[] > KO *)
   App(
     App (
       Cst (Cop "::"), Cst (Cnat 42)
@@ -87,6 +90,17 @@ let ex_list_4 : lterm =
     )    
   )
 let inf_ex_list_4 : string = inference ex_list_4
+
+let ex_list_hd_1 : lterm = Cst (Cop "hd")
+let inf_ex_list_hd_1 : string = inference ex_list_hd_1
+let ex_list_hd_2 : lterm = App (Cst (Cop "hd"), Cst (Cop "[]"))
+let inf_ex_list_hd_2 : string = inference ex_list_hd_2
+let ex_list_hd_3 : lterm = App (Cst (Cop "hd"), Cst (Cnat 42))
+let inf_ex_list_hd_3 : string = inference ex_list_hd_3
+let ex_list_hd_4 : lterm = App (Cst (Cop "hd"), ex_list_3)
+let inf_ex_list_hd_4 : string = inference ex_list_hd_4
+let ex_list_hd_5 : lterm = App (Cst (Cop "hd"), ex_list_4)
+let inf_ex_list_hd_5 : string = inference ex_list_hd_5
 
 let main () =
   print_newline ();
@@ -136,12 +150,24 @@ let main () =
   print_endline "======================";
   print_endline inf_ex_list_empty;
   print_endline "======================";
+  print_endline inf_ex_list_cons;
+  print_endline "======================";
   print_endline inf_ex_list_1;
   print_endline "======================";
   print_endline inf_ex_list_2;
   print_endline "======================";
   print_endline inf_ex_list_3;
   print_endline "======================";
-  print_endline inf_ex_list_4
+  print_endline inf_ex_list_4;
+  print_endline "======================";
+  print_endline inf_ex_list_hd_1;
+  print_endline "======================";
+  print_endline inf_ex_list_hd_2;
+  print_endline "======================";
+  print_endline inf_ex_list_hd_3;
+  print_endline "======================";
+  print_endline inf_ex_list_hd_4;
+  print_endline "======================";
+  print_endline inf_ex_list_hd_5
 
 let _ = main ()
