@@ -20,6 +20,7 @@ let rec print_term (t : lterm) : string =
   | Var x -> x
   | App (t1, t2) -> "(" ^ print_term t1 ^ " " ^ print_term t2 ^ ")"
   | Abs (x, t) -> "(fun " ^ x ^ " -> " ^ print_term t ^ ")"
+  | Ifz (tcond, t1, t2) -> "if " ^ print_term tcond ^ " then " ^ print_term t1 ^ " else " ^ print_term t2
 
 (* Type pretty printer *)
 let rec print_type (t : typ) : string =
@@ -79,9 +80,15 @@ let rec genere_equa (te : lterm) (ty : typ) (e : env) : equa =
   | Cst (Cnat _) -> [(ty, Nat)]
   | Cst (Cbool _) -> [(ty, Bool)]
   | Cst (Cop sop) ->
-      try
+      (try
         let typ = OperationTypeMap.find sop op_type_map in [(ty, typ)]
-      with Not_found -> raise (OperationNotFound sop)
+      with Not_found -> raise (OperationNotFound sop))
+  | Ifz (tcond, t1, t2) ->
+      let nvc : string = nouvelle_var () and nv : string = nouvelle_var () in
+      let eqc : equa = genere_equa tcond (Var nvc) e in
+      let eq1 : equa = genere_equa t1 (Var nv) e in
+      let eq2 : equa = genere_equa t2 (Var nv) e in
+        (Nat, Var nvc)::(ty, Var nv)::eqc @ eq1 @ eq2
 
 (* zipper d'une liste d'équations *)
 type equa_zip = equa * equa

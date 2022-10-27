@@ -9,6 +9,7 @@ type lterm =
   | Var of string
   | App of lterm * lterm
   | Abs of string * lterm
+  | Ifz of lterm * lterm * lterm
 
 (* Types *) 
 type typ =
