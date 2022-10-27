@@ -102,6 +102,17 @@ let inf_ex_list_hd_4 : string = inference ex_list_hd_4
 let ex_list_hd_5 : lterm = App (Cst (Cop "hd"), ex_list_4)
 let inf_ex_list_hd_5 : string = inference ex_list_hd_5
 
+let ex_list_tl_1 : lterm = Cst (Cop "tl")
+let inf_ex_list_tl_1 : string = inference ex_list_tl_1
+let ex_list_tl_2 : lterm = App (Cst (Cop "tl"), Cst (Cop "[]"))
+let inf_ex_list_tl_2 : string = inference ex_list_tl_2
+let ex_list_tl_3 : lterm = App (Cst (Cop "tl"), Cst (Cnat 42))
+let inf_ex_list_tl_3 : string = inference ex_list_tl_3
+let ex_list_tl_4 : lterm = App (Cst (Cop "tl"), ex_list_3)
+let inf_ex_list_tl_4 : string = inference ex_list_tl_4
+let ex_list_tl_5 : lterm = App (Cst (Cop "tl"), ex_list_4)
+let inf_ex_list_tl_5 : string = inference ex_list_tl_5
+
 let main () =
   print_newline ();
   print_endline inf_ex_nat;
@@ -168,6 +179,16 @@ let main () =
   print_endline "======================";
   print_endline inf_ex_list_hd_4;
   print_endline "======================";
-  print_endline inf_ex_list_hd_5
+  print_endline inf_ex_list_hd_5;
+  print_endline "======================";
+  print_endline inf_ex_list_tl_1;
+  print_endline "======================";
+  print_endline inf_ex_list_tl_2;
+  print_endline "======================";
+  print_endline inf_ex_list_tl_3;
+  print_endline "======================";
+  print_endline inf_ex_list_tl_4;
+  print_endline "======================";
+  print_endline inf_ex_list_tl_5
 
 let _ = main ()
