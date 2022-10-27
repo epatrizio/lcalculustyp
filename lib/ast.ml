@@ -10,6 +10,7 @@ type lterm =
   | App of lterm * lterm
   | Abs of string * lterm
   | Ifz of lterm * lterm * lterm
+  | Ife of lterm * lterm * lterm
 
 (* Types *) 
 type typ =

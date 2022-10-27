@@ -126,6 +126,19 @@ let inf_ex_ifz_5 : string = inference ex_ifz_5
 let ex_ifz_6 : lterm = Ifz (ex_nat, ex_id, ex_nat2)
 let inf_ex_ifz_6 : string = inference ex_ifz_6
 
+let ex_ife_1 : lterm = Ife (ex_list_empty, Cst (Cbool false), Cst (Cbool true))
+let inf_ex_ife_1 : string = inference ex_ife_1
+let ex_ife_2 : lterm = Ife (ex_list_empty, Cst (Cbool false), Cst (Cnat 0))
+let inf_ex_ife_2 : string = inference ex_ife_2
+let ex_ife_3 : lterm = Ife (ex_id, Cst (Cbool false), Cst (Cbool true))
+let inf_ex_ife_3 : string = inference ex_ife_3
+let ex_ife_4 : lterm = Ife (ex_list_3, Cst (Cbool false), Cst (Cbool true))
+let inf_ex_ife_4 : string = inference ex_ife_4
+let ex_ife_5 : lterm = Ife (ex_list_empty, ex_id, ex_k)
+let inf_ex_ife_5 : string = inference ex_ife_5
+let ex_ife_6 : lterm = Ife (ex_list_empty, ex_id, ex_nat2)
+let inf_ex_ife_6 : string = inference ex_ife_6
+
 let main () =
   print_newline ();
   print_endline inf_ex_nat;
@@ -214,6 +227,18 @@ let main () =
   print_endline "======================";
   print_endline inf_ex_ifz_5;
   print_endline "======================";
-  print_endline inf_ex_ifz_6
+  print_endline inf_ex_ifz_6;
+  print_endline "======================";
+  print_endline inf_ex_ife_1;
+  print_endline "======================";
+  print_endline inf_ex_ife_2;
+  print_endline "======================";
+  print_endline inf_ex_ife_3;
+  print_endline "======================";
+  print_endline inf_ex_ife_4;
+  print_endline "======================";
+  print_endline inf_ex_ife_5;
+  print_endline "======================";
+  print_endline inf_ex_ife_6
 
 let _ = main ()
