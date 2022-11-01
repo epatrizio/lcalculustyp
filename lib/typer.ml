@@ -1,4 +1,5 @@
 open Ast
+open Utils
 
 (* Typing environment *)
 type env = (string * typ) list
@@ -32,13 +33,6 @@ let rec print_type (t : typ) : string =
   | Arr (t1, t2) -> "(" ^ print_type t1 ^ " -> " ^ print_type t2 ^ ")"
   | List t -> print_type t ^ " list"
 
-(* générateur de noms frais de variables de types *)
-let compteur_var : int ref = ref 0
-
-let nouvelle_var () : string =
-  compteur_var := !compteur_var + 1;
-  "T" ^ (string_of_int !compteur_var)
-
 (* cherche le type d'une variable dans un environnement *)
 let rec cherche_type (v : string) (e : env) : typ =
   match e with
@@ -71,12 +65,12 @@ let substitue_type_partout (e : equa) (v : string) (t0 : typ) : equa =
 let rec genere_equa (te : lterm) (ty : typ) (e : env) : equa =
   match te with 
   | Var v -> let tv : typ = cherche_type v e in [(ty, tv)]
-  | App (t1, t2) -> let nv : string = nouvelle_var () in
+  | App (t1, t2) -> let nv : string = new_type_var () in
       let eq1 : equa = genere_equa t1 (Arr (Var nv, ty)) e in
       let eq2 : equa = genere_equa t2 (Var nv) e in
         eq1 @ eq2
   | Abs (x, t) ->
-      let nv1 : string = nouvelle_var () and nv2 : string = nouvelle_var () in
+      let nv1 : string = new_type_var () and nv2 : string = new_type_var () in
         (ty, Arr (Var nv1, Var nv2))::(genere_equa t (Var nv2) ((x, Var nv1)::e))
   | Cst (Cnat _) -> [(ty, Nat)]
   | Cst (Cbool _) -> [(ty, Bool)]
@@ -85,13 +79,13 @@ let rec genere_equa (te : lterm) (ty : typ) (e : env) : equa =
         let typ = OperationTypeMap.find sop op_type_map in [(ty, typ)]
       with Not_found -> raise (OperationNotFound sop))
   | Ifz (tcond, t1, t2) ->
-      let nvc : string = nouvelle_var () and nv : string = nouvelle_var () in
+      let nvc : string = new_type_var () and nv : string = new_type_var () in
       let eqc : equa = genere_equa tcond (Var nvc) e in
       let eq1 : equa = genere_equa t1 (Var nv) e in
       let eq2 : equa = genere_equa t2 (Var nv) e in
         (Nat, Var nvc)::(ty, Var nv)::eqc @ eq1 @ eq2
   | Ife (tcond, t1, t2) ->
-    let nvc : string = nouvelle_var () and nvl : string = nouvelle_var () and nv : string = nouvelle_var () in
+    let nvc : string = new_type_var () and nvl : string = new_type_var () and nv : string = new_type_var () in
     let eqc : equa = genere_equa tcond (Var nvc) e in
     let eq1 : equa = genere_equa t1 (Var nv) e in
     let eq2 : equa = genere_equa t2 (Var nv) e in
