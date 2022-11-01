@@ -139,6 +139,9 @@ let inf_ex_ife_5 : string = inference ex_ife_5
 let ex_ife_6 : lterm = Ife (ex_list_empty, ex_id, ex_nat2)
 let inf_ex_ife_6 : string = inference ex_ife_6
 
+let ex_fix : lterm = Cst (Cop "fix")
+let inf_ex_fix : string = inference ex_fix
+
 let main () =
   print_newline ();
   print_endline inf_ex_nat;
@@ -239,6 +242,8 @@ let main () =
   print_endline "======================";
   print_endline inf_ex_ife_5;
   print_endline "======================";
-  print_endline inf_ex_ife_6
+  print_endline inf_ex_ife_6;
+  print_endline "======================";
+  print_endline inf_ex_fix
 
 let _ = main ()

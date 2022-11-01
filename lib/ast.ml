@@ -30,3 +30,4 @@ let op_type_map = OperationTypeMap.add "[]" (List (Var "a")) op_type_map
 let op_type_map = OperationTypeMap.add "::" (Arr (Var "a", Arr (List (Var "a"), List (Var "a")))) op_type_map
 let op_type_map = OperationTypeMap.add "hd" (Arr (List (Var "a"), Var "a")) op_type_map
 let op_type_map = OperationTypeMap.add "tl" (Arr (List (Var "a"), List (Var "a"))) op_type_map
+let op_type_map = OperationTypeMap.add "fix" (Arr (Arr (Var "a", Var "a"), Var "a")) op_type_map
