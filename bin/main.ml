@@ -2,24 +2,28 @@ open Format
 
 open Lterms
 
-open Lib.Typer
 open Lib.Ast
+open Lib.Eval
+open Lib.Typer
+open Lib.Utils
 
-let inference (lt : lterm) : unit =
+let lterms_process (lt : lterm) : unit =
   try
     let eq : equa_zip = ([], genere_equa lt (Var "goal") []) in
-    let res = unification eq "goal" in
-      printf "[Typing result] %s :: %s@." (print_term lt) (print_type res)
+    let res = unification eq "goal" in (* inference *)
+      printf "[Typing result] %s :: %s@." (print_term lt) (print_type res);
+      printf "[Eval result] %s@." (print_term (reduce lt)) (* eval only if typing ok - beta *)
   with
   | OperationNotFound err -> eprintf "[Typing ERROR -- Operation not found] %s@." err
   | UnifyError err -> eprintf "[Typing ERROR -- impossible to unify] %s : %s@." (print_term lt) err
   | VarNotFound -> eprintf "[Typing ERROR -- Unbound variable] %s@." (print_term lt)
+  | NotImplemented err -> eprintf "[Eval ERROR -- Not implemented] %s@." err
 
-let rec lterms_process lterms_test =
+let rec lterms_loop lterms_test =
   match lterms_test with
   | [] -> ()
   | lt::r ->
-      inference lt;
-      lterms_process r
+      lterms_process lt;
+      lterms_loop r
 
-let _ = lterms_process (List.rev lterms)
+let _ = lterms_loop (List.rev lterms)
