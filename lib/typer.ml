@@ -149,10 +149,3 @@ let rec unification (e : equa_zip) (but : string) : typ =
   | (_, (Nat, t3)::_) -> raise (UnifyError ("type entier non-unifiable avec "^(print_type t3)))
     (* types à droite pas à gauche : échec *)
   | (_, (t3, Nat)::_) -> raise (UnifyError ("type entier non-unifiable avec "^(print_type t3)))
-
-(* enchaine generation d'equation et unification *)                                   
-let inference (t : lterm) : string =
-  let e : equa_zip = ([], genere_equa t (Var "but") []) in
-  try (let res = unification e "but" in
-       (print_term t)^" ***TYPABLE*** avec le type "^(print_type res))
-  with UnifyError bla -> (print_term t)^" ***PAS TYPABLE*** : "^bla
