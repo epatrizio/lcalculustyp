@@ -17,7 +17,7 @@ let lterms_process (lt : lterm) : unit =
   | OperationNotFound err -> eprintf "[Typing ERROR -- Operation not found] %s@." err
   | UnifyError err -> eprintf "[Typing ERROR -- impossible to unify] %s : %s@." (print_term lt) err
   | VarNotFound -> eprintf "[Typing ERROR -- Unbound variable] %s@." (print_term lt)
-  | NotImplemented err -> eprintf "[Eval ERROR -- Not implemented] %s@." err
+  | NotImplemented err -> eprintf "[Eval WARNING -- Not implemented] %s@." err
 
 let rec lterms_loop lterms_test =
   match lterms_test with

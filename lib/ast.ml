@@ -11,6 +11,7 @@ type lterm =
   | Abs of string * lterm
   | Ifz of lterm * lterm * lterm
   | Ife of lterm * lterm * lterm
+  | Let of string * lterm * lterm
 
 (* Types *) 
 type typ =

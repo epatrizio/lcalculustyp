@@ -25,3 +25,4 @@ let rec print_term (t : lterm) : string =
   | Abs (x, t) -> "(fun " ^ x ^ " -> " ^ print_term t ^ ")"
   | Ifz (tcond, t1, t2) -> "ife " ^ print_term tcond ^ " then " ^ print_term t1 ^ " else " ^ print_term t2
   | Ife (tcond, t1, t2) -> "ifz " ^ print_term tcond ^ " then " ^ print_term t1 ^ " else " ^ print_term t2
+  | Let (x, t1, t2) -> "let " ^ x ^ "=" ^ print_term t1 ^ " in " ^ print_term t2

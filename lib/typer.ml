@@ -50,10 +50,11 @@ let substitue_type_partout (e : equa) (v : string) (t0 : typ) : equa =
   List.map (fun (x, y) -> (substitue_type x v t0, substitue_type y v t0)) e
 
 (* genere des equations de typage à partir d'un terme *)  
-let rec genere_equa (te : lterm) (ty : typ) (e : env) : equa =
-  match te with 
+let rec genere_equa (lt : lterm) (ty : typ) (e : env) : equa =
+  match lt with 
   | Var v -> let tv : typ = cherche_type v e in [(ty, tv)]
-  | App (t1, t2) -> let nv : string = new_type_var () in
+  | App (t1, t2) ->
+      let nv : string = new_type_var () in
       let eq1 : equa = genere_equa t1 (Arr (Var nv, ty)) e in
       let eq2 : equa = genere_equa t2 (Var nv) e in
         eq1 @ eq2
@@ -73,11 +74,16 @@ let rec genere_equa (te : lterm) (ty : typ) (e : env) : equa =
       let eq2 : equa = genere_equa t2 (Var nv) e in
         (Nat, Var nvc)::(ty, Var nv)::eqc @ eq1 @ eq2
   | Ife (tcond, t1, t2) ->
-    let nvc : string = new_type_var () and nvl : string = new_type_var () and nv : string = new_type_var () in
-    let eqc : equa = genere_equa tcond (Var nvc) e in
-    let eq1 : equa = genere_equa t1 (Var nv) e in
-    let eq2 : equa = genere_equa t2 (Var nv) e in
-      (List (Var nvl), Var nvc)::(ty, Var nv)::eqc @ eq1 @ eq2
+      let nvc : string = new_type_var () and nvl : string = new_type_var () and nv : string = new_type_var () in
+      let eqc : equa = genere_equa tcond (Var nvc) e in
+      let eq1 : equa = genere_equa t1 (Var nv) e in
+      let eq2 : equa = genere_equa t2 (Var nv) e in
+        (List (Var nvl), Var nvc)::(ty, Var nv)::eqc @ eq1 @ eq2
+  | Let (x, t1, t2) ->
+      let nv1 : string = new_type_var () and nv2 : string = new_type_var () in
+      let eq1 : equa = genere_equa t1 (Var nv1) e in
+      let eq2 : equa = genere_equa t2 (Var nv2) ((x, Var nv1)::e) in
+        [(ty, Var nv2)] @ eq1 @ eq2
 
 (* zipper d'une liste d'équations *)
 type equa_zip = equa * equa

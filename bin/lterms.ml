@@ -93,3 +93,11 @@ let lterms = (Ife (Cst (Cop "[]"), Abs ("x", Var "x"), Abs ("x", Abs ("y", Var "
 let lterms = (Ife (Cst (Cop "[]"), Abs ("x", Var "x"), ex_nat))::lterms
 
 let lterms = (Cst (Cop "fix"))::lterms
+
+let lterms = (Let ("x", Cst (Cbool true), Cst (Cop "not")))::lterms
+let lterms = (Let ("x", Cst (Cbool true), App (Cst (Cop "not"), Var "x")))::lterms
+let lterms = (Let ("x", Cst (Cbool true), App (Cst (Cop "+"), Var "x")))::lterms
+let lterms = (Let ("x", Abs ("x", Var "x"), App (Var "x", Cst (Cnat 42))))::lterms
+let lterms = (Let ("x", App (Cst (Cop "+"), Cst (Cnat 40)), App (Var "x", Cst (Cbool false))))::lterms
+let lterms = (Let ("x", Cst (Cop "+"), App (Var "x", Cst (Cnat 42))))::lterms
+let lterms = (Let ("y", Cst (Cnat 42), Abs ("x", App( App (Cst (Cop "+"), Var "x"), Var "y"))))::lterms
