@@ -10,6 +10,7 @@ let rec get_free_nb_vars (lt : lterm) : string list =
   | Abs (x,t) -> List.filter (fun y -> x <> y) (get_free_nb_vars t)
   | t -> raise (NotImplemented (print_term t))
 
+(* Substitute v occurences by m in lt *)
 let rec substitute (lt : lterm) (v : string) (m : lterm) : lterm =
   match lt with
   | Cst _ -> lt

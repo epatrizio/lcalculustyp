@@ -35,6 +35,9 @@ let lterms = (ex_nat)::lterms
 let lterms = (App (Abs ("x", App (Var "x", Var "x")), Abs ("y", App (Var "y", Var "y"))))::lterms
 let lterms = (App (ex_nat, Abs ("x", Var "x")))::lterms
 
+let lterms = (App (ex_nat, ex_add))::lterms
+let lterms = (App (Abs ("y", Var "y"), ex_nat))::lterms
+
 let ex_list_1 : lterm =   (* 2::40::[] *)
   App(
     App (
