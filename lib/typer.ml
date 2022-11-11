@@ -21,6 +21,7 @@ let rec print_type (t : typ) : string =
   | Var x -> x
   | Arr (t1, t2) -> "(" ^ print_type t1 ^ " -> " ^ print_type t2 ^ ")"
   | List t -> print_type t ^ " list"
+  | Ref t -> "ref " ^ print_type t
 
 (* cherche le type d'une variable dans un environnement *)
 let rec cherche_type (v : string) (e : env) : typ =
@@ -46,6 +47,7 @@ let rec substitue_type (t : typ) (v : string) (t0 : typ) : typ =
   | Var v2 -> Var v2
   | Arr (t1, t2) -> Arr (substitue_type t1 v t0, substitue_type t2 v t0)
   | List t1 -> List (substitue_type t1 v t0)
+  | Ref t1 -> Ref (substitue_type t1 v t0)
 
 (* remplace une variable par un type dans une liste d'équations*)
 let substitue_type_partout (e : equa) (v : string) (t0 : typ) : equa =
@@ -126,9 +128,9 @@ let rec unification (e : equa_zip) (but : string) : typ =
     (* types fleche des deux cotes : on decompose  *)
   | (e1, (Arr (t1,t2), Arr (t3, t4))::e2) -> unification (e1, (t1, t3)::(t2, t4)::e2) but
     (* types fleche à gauche pas à droite : echec  *)
-  | (_, (Arr (_,_), t)::_) -> raise (UnifyError ("type fleche non-unifiable avec "^(print_type t)))
+  | (_, (Arr (_,_), t)::_) -> raise (UnifyError ("type fleche non-unifiable avec "^print_type t))
     (* types fleche à droite pas à gauche : echec  *)
-  | (_, (t, Arr (_,_))::_) -> raise (UnifyError ("type fleche non-unifiable avec "^(print_type t)))
+  | (_, (t, Arr (_,_))::_) -> raise (UnifyError ("type fleche non-unifiable avec "^print_type t))
     (* List *)
   | (e1, (List t1, List t2)::e2) -> unification (e1, (t1, t2)::e2) but
   | (_, (t, List _)::_) -> raise (UnifyError ("type list non-unifiable avec "^print_type t))
@@ -138,7 +140,11 @@ let rec unification (e : equa_zip) (but : string) : typ =
   | (e1, (Bool, Bool)::e2) -> unification (e1, e2) but
   | (e1, (Unit, Unit)::e2) -> unification (e1, e2) but
     (* types 'cst' à gauche pas à droite et vis-versa : échec *)
-  | (_, (Nat, t)::_) -> raise (UnifyError ("type entier non-unifiable avec "^(print_type t)))
-  | (_, (t, Nat)::_) -> raise (UnifyError ("type entier non-unifiable avec "^(print_type t)))
-  | (_, (Bool, t)::_) -> raise (UnifyError ("type boolean non-unifiable avec "^(print_type t)))
-  | (_, (t, Bool)::_) -> raise (UnifyError ("type boolean non-unifiable avec "^(print_type t)))
+  | (_, (Nat, t)::_) -> raise (UnifyError ("type entier non-unifiable avec "^print_type t))
+  | (_, (t, Nat)::_) -> raise (UnifyError ("type entier non-unifiable avec "^print_type t))
+  | (_, (Bool, t)::_) -> raise (UnifyError ("type boolean non-unifiable avec "^print_type t))
+  | (_, (t, Bool)::_) -> raise (UnifyError ("type boolean non-unifiable avec "^print_type t))
+    (* types ref *)
+  | (e1, (Ref t1, Ref t2)::e2) -> unification (e1, (t1, t2)::e2) but
+  | (_, (Ref _, t)::_) -> raise (UnifyError ("type ref non-unifiable avec "^print_type t))
+  | (_, (t, Ref _)::_) -> raise (UnifyError ("type ref non-unifiable avec "^print_type t))

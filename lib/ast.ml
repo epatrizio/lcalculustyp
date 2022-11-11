@@ -22,6 +22,7 @@ type typ =
   | Var of string
   | Arr of typ * typ
   | List of typ
+  | Ref of typ
 
 (* Operation types *)
 module OperationTypeMap = Map.Make(String)
