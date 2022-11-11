@@ -19,11 +19,4 @@ let lterms_process (lt : lterm) : unit =
   | VarNotFound -> eprintf "[Typing ERROR -- Unbound variable] %s@." (print_term lt)
   | NotImplemented err -> eprintf "[Eval WARNING -- Not implemented] %s@." err
 
-let rec lterms_loop lterms_test =
-  match lterms_test with
-  | [] -> ()
-  | lt::r ->
-      lterms_process lt;
-      lterms_loop r
-
-let _ = lterms_loop (List.rev lterms)
+let _ = List.map lterms_process (List.rev lterms)
