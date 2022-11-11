@@ -6,8 +6,10 @@ let rec get_free_nb_vars (lt : lterm) : string list =
   match lt with
   | Cst _ -> []
   | Var x -> [x]
-  | App (e1,e2) -> get_free_nb_vars e1 @ get_free_nb_vars e2
-  | Abs (x,t) -> List.filter (fun y -> x <> y) (get_free_nb_vars t)
+  | App (t1, t2) -> get_free_nb_vars t1 @ get_free_nb_vars t2
+  | Abs (x, t) -> List.filter (fun y -> x <> y) (get_free_nb_vars t)
+  | Ifz (tcond, t1, t2) -> get_free_nb_vars tcond @ get_free_nb_vars t1 @ get_free_nb_vars t2
+  | Ife (_, _, _) -> raise (NotImplemented "Ife")
   | t -> raise (NotImplemented (print_term t))
 
 (* Substitute v occurences by m in lt *)
@@ -23,6 +25,8 @@ let rec substitute (lt : lterm) (v : string) (m : lterm) : lterm =
 	      let nv = new_eval_var () in
 	      let t' = substitute t x (Var nv) in
 	        Abs (nv, substitute t' v m)
+  | Ifz (tcond, t1, t2) -> Ifz (substitute tcond v m, substitute t1 v m, substitute t2 v m)
+  | Ife (_, _, _) -> raise (NotImplemented "Ife")
   | t -> raise (NotImplemented (print_term t))
 
 let rec reduce (lt : lterm) : lterm =
@@ -35,4 +39,9 @@ let rec reduce (lt : lterm) : lterm =
         if t1' != t1 then App (t1',t2)
         else App (t1,reduce t2)
   | Abs (x,t) -> Abs (x, reduce t)
+  | Ifz (tcond, t1, t2) ->
+      let tc = reduce tcond in
+        if tc = (Cst (Cnat 0)) then reduce t2
+        else reduce t1
+  | Ife (_, _, _) -> raise (NotImplemented "Ife")
   | t -> raise (NotImplemented (print_term t))

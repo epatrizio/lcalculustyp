@@ -14,9 +14,13 @@ let lterms = (Cst (Cop "unknown_op"))::lterms
 let ex_add : lterm =
   App (App (Cst (Cop "+"), Cst (Cnat 40)), Cst (Cnat 2))
 
+let ex_min : lterm =
+  App (App (Cst (Cop "-"), Cst (Cnat 42)), Cst (Cnat 42))
+
 let lterms = (Cst (Cop "+"))::lterms
 let lterms = (App (Cst (Cop "+"), Cst (Cnat 42)))::lterms
 let lterms = (ex_add)::lterms
+let lterms = (ex_min)::lterms
 let lterms = (App (Cst (Cop "+"), Cst (Cbool false)))::lterms
 let lterms = (App (App (Cst (Cop "+"), Cst (Cnat 42)), Cst (Cbool false)))::lterms
 let lterms = (App (App (Cst (Cop "+"), Cst (Cbool false)), Cst (Cnat 42)))::lterms
@@ -82,9 +86,11 @@ let lterms = (App (Cst (Cop "tl"), ex_list_1))::lterms
 let lterms = (App (Cst (Cop "tl"), ex_list_2))::lterms
 
 let lterms = (Ifz (Cst (Cnat 42), Cst (Cbool false), Cst (Cbool true)))::lterms
+let lterms = (Ifz (Cst (Cnat 0), Cst (Cbool false), Cst (Cbool true)))::lterms
 let lterms = (Ifz (Cst (Cnat 42), Cst (Cbool false), Cst (Cnat 0)))::lterms
 let lterms = (Ifz (Abs ("x", Var "x"), Cst (Cbool false), Cst (Cbool true)))::lterms
 let lterms = (Ifz (ex_add, Cst (Cbool false), Cst (Cbool true)))::lterms
+let lterms = (Ifz (ex_min, Cst (Cbool false), Cst (Cbool true)))::lterms
 let lterms = (Ifz (Cst (Cnat 42), Abs ("x", Var "x"), Abs ("x", Abs ("y", Var "x"))))::lterms
 let lterms = (Ifz (Cst (Cnat 42), Abs ("x", Var "x"), ex_nat))::lterms
 
