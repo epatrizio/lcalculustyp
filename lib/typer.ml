@@ -17,6 +17,7 @@ let rec print_type (t : typ) : string =
   match t with
   | Bool -> "Boolean"
   | Nat -> "Nat"
+  | Unit -> "Unit"
   | Var x -> x
   | Arr (t1, t2) -> "(" ^ print_type t1 ^ " -> " ^ print_type t2 ^ ")"
   | List t -> print_type t ^ " list"
@@ -40,6 +41,7 @@ let rec substitue_type (t : typ) (v : string) (t0 : typ) : typ =
   match t with
   | Bool -> Bool
   | Nat -> Nat
+  | Unit -> Unit
   | Var v1 when v1 = v -> t0
   | Var v2 -> Var v2
   | Arr (t1, t2) -> Arr (substitue_type t1 v t0, substitue_type t2 v t0)
@@ -63,6 +65,7 @@ let rec genere_equa (lt : lterm) (ty : typ) (e : env) : equa =
         (ty, Arr (Var nv1, Var nv2))::(genere_equa t (Var nv2) ((x, Var nv1)::e))
   | Cst (Cnat _) -> [(ty, Nat)]
   | Cst (Cbool _) -> [(ty, Bool)]
+  | Cst (Cunit) -> [(ty, Unit)]
   | Cst (Cop sop) ->
       (try
         let typ = OperationTypeMap.find sop op_type_map in [(ty, typ)]
@@ -123,17 +126,19 @@ let rec unification (e : equa_zip) (but : string) : typ =
     (* types fleche des deux cotes : on decompose  *)
   | (e1, (Arr (t1,t2), Arr (t3, t4))::e2) -> unification (e1, (t1, t3)::(t2, t4)::e2) but
     (* types fleche à gauche pas à droite : echec  *)
-  | (_, (Arr (_,_), t3)::_) -> raise (UnifyError ("type fleche non-unifiable avec "^(print_type t3)))
+  | (_, (Arr (_,_), t)::_) -> raise (UnifyError ("type fleche non-unifiable avec "^(print_type t)))
     (* types fleche à droite pas à gauche : echec  *)
-  | (_, (t3, Arr (_,_))::_) -> raise (UnifyError ("type fleche non-unifiable avec "^(print_type t3)))     
+  | (_, (t, Arr (_,_))::_) -> raise (UnifyError ("type fleche non-unifiable avec "^(print_type t)))
     (* List *)
   | (e1, (List t1, List t2)::e2) -> unification (e1, (t1, t2)::e2) but
   | (_, (t, List _)::_) -> raise (UnifyError ("type list non-unifiable avec "^print_type t))
   | (_, (List _, t)::_) -> raise (UnifyError ("type list non-unifiable avec "^print_type t))
-    (* types nat des deux cotes : on passe *)
+    (* types 'cst' des deux cotes : on passe *)
   | (e1, (Nat, Nat)::e2) -> unification (e1, e2) but
   | (e1, (Bool, Bool)::e2) -> unification (e1, e2) but
-    (* types nat à gauche pas à droite : échec *)
-  | (_, (Nat, t3)::_) -> raise (UnifyError ("type entier non-unifiable avec "^(print_type t3)))
-    (* types à droite pas à gauche : échec *)
-  | (_, (t3, Nat)::_) -> raise (UnifyError ("type entier non-unifiable avec "^(print_type t3)))
+  | (e1, (Unit, Unit)::e2) -> unification (e1, e2) but
+    (* types 'cst' à gauche pas à droite et vis-versa : échec *)
+  | (_, (Nat, t)::_) -> raise (UnifyError ("type entier non-unifiable avec "^(print_type t)))
+  | (_, (t, Nat)::_) -> raise (UnifyError ("type entier non-unifiable avec "^(print_type t)))
+  | (_, (Bool, t)::_) -> raise (UnifyError ("type boolean non-unifiable avec "^(print_type t)))
+  | (_, (t, Bool)::_) -> raise (UnifyError ("type boolean non-unifiable avec "^(print_type t)))

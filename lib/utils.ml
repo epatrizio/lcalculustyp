@@ -19,6 +19,7 @@ let rec print_term (t : lterm) : string =
   match t with
   | Cst (Cnat n) -> string_of_int n
   | Cst (Cbool b) -> string_of_bool b
+  | Cst (Cunit) -> "()"
   | Cst (Cop sop) -> sop
   | Var x -> x
   | App (t1, t2) -> "(" ^ print_term t1 ^ " " ^ print_term t2 ^ ")"
