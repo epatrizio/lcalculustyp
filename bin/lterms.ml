@@ -112,3 +112,14 @@ let lterms = (Let ("x", Cst (Cop "+"), App (Var "x", Cst (Cnat 42))))::lterms
 let lterms = (Let ("y", Cst (Cnat 42), Abs ("x", App( App (Cst (Cop "+"), Var "x"), Var "y"))))::lterms
 
 let lterms = (Cst (Cunit))::lterms
+
+let lterms = (Cst (Cop "ref"))::lterms
+let lterms = (App (Cst (Cop "ref"), Cst (Cnat 42)))::lterms
+let lterms = (App (Cst (Cop "ref"), Cst (Cbool true)))::lterms
+
+let lterms = (Cst (Cop "!"))::lterms
+let lterms = (App (Cst (Cop "!"), App (Cst (Cop "ref"), Cst (Cnat 42))))::lterms
+
+let lterms = (Cst (Cop ":="))::lterms
+let lterms = (App (App (Cst (Cop ":="), App (Cst (Cop "ref"), Cst (Cbool true))), Cst (Cbool false)))::lterms
+let lterms = (App (App (Cst (Cop ":="), App (Cst (Cop "ref"), Cst (Cbool true))), Cst (Cnat 42)))::lterms

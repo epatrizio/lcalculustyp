@@ -21,7 +21,7 @@ let rec print_type (t : typ) : string =
   | Var x -> x
   | Arr (t1, t2) -> "(" ^ print_type t1 ^ " -> " ^ print_type t2 ^ ")"
   | List t -> print_type t ^ " list"
-  | Ref t -> "ref " ^ print_type t
+  | Ref t -> print_type t ^ " ref"
 
 (* cherche le type d'une variable dans un environnement *)
 let rec cherche_type (v : string) (e : env) : typ =

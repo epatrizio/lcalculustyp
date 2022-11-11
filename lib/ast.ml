@@ -35,3 +35,6 @@ let op_type_map = OperationTypeMap.add "::" (Arr (Var "a", Arr (List (Var "a"), 
 let op_type_map = OperationTypeMap.add "hd" (Arr (List (Var "a"), Var "a")) op_type_map
 let op_type_map = OperationTypeMap.add "tl" (Arr (List (Var "a"), List (Var "a"))) op_type_map
 let op_type_map = OperationTypeMap.add "fix" (Arr (Arr (Var "a", Var "a"), Var "a")) op_type_map
+let op_type_map = OperationTypeMap.add "ref" (Arr (Var "a", Ref (Var "a"))) op_type_map
+let op_type_map = OperationTypeMap.add "!" (Arr (Ref (Var "a"), Var "a")) op_type_map
+let op_type_map = OperationTypeMap.add ":=" (Arr (Ref (Var "a"), Arr (Var "a", Unit))) op_type_map
