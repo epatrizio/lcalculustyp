@@ -72,14 +72,14 @@ let ex_list_2 : lterm =   (* 42::false::[] > KO *)
     )    
   )
 
-let ex_list_3 : lterm =   (* (40+2)::40::[] *)
+let ex_list_3 : lterm =   (* (40+2)::(42-42)::[] *)
   App(
     App (
       Cst (Cop "::"), ex_add
     ),
     App(
       App (
-        Cst (Cop "::"), Cst (Cnat 40)
+        Cst (Cop "::"), ex_min
       ),
       Cst (Cop "[]")
     )    
@@ -103,6 +103,7 @@ let lterms = (App (Cst (Cop "tl"), Cst (Cop "[]")))::lterms
 let lterms = (App (Cst (Cop "tl"), Cst (Cnat 42)))::lterms
 let lterms = (App (Cst (Cop "tl"), ex_list_1))::lterms
 let lterms = (App (Cst (Cop "tl"), ex_list_2))::lterms
+let lterms = (App (Cst (Cop "tl"), ex_list_3))::lterms
 
 let lterms = (Ifz (Cst (Cnat 42), Cst (Cbool false), Cst (Cbool true)))::lterms
 let lterms = (Ifz (Cst (Cnat 0), Cst (Cbool false), Cst (Cbool true)))::lterms
