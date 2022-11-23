@@ -39,6 +39,7 @@ let rec reduce (lt : lterm) : lterm =
   | App (App (Cst (Cop "+"), Cst (Cnat n1)), Cst (Cnat n2)) -> Cst (Cnat (n1+n2))
   | App (App (Cst (Cop "-"), Cst (Cnat n1)), Cst (Cnat n2)) -> Cst (Cnat (n1-n2))
   | App (Cst (Cop "not"), Cst (Cbool b)) -> Cst (Cbool (not b))
+  | App (Cst (Cop "hd"), App( App( Cst (Cop "::"), Cst c), _)) -> Cst c
   | App (Abs (x,t1), t2) -> substitute t1 x t2
   | App (t1,t2) -> let t1' = reduce t1 in App (t1',reduce t2)
   | Abs (x,t) -> Abs (x, reduce t)
@@ -52,7 +53,7 @@ let rec reduce (lt : lterm) : lterm =
 (* Lambda term evaluation *)
 let eval (lt : lterm) : lterm =
   let rec eval_loop (lt : lterm) (timeout : int) : lterm =
-    if (timeout < 3) then
+    if (timeout < 100) then
       eval_loop (reduce lt) (timeout+1)
     else
       lt
