@@ -30,16 +30,17 @@ let rec substitute (lt : lterm) (v : string) (m : lterm) : lterm =
   | Let (x, t1, t2) ->
       if x = v then Let (x, substitute t1 v m, t2)
       else Let (x, substitute t1 v m, t2)
-      
+
+(* Lambda term reduction *)
 let rec reduce (lt : lterm) : lterm =
   match lt with
   | Cst _ -> lt
   | Var _ -> lt
+  | App (App (Cst (Cop "+"), Cst (Cnat n1)), Cst (Cnat n2)) -> Cst (Cnat (n1+n2))
+  | App (App (Cst (Cop "-"), Cst (Cnat n1)), Cst (Cnat n2)) -> Cst (Cnat (n1-n2))
+  | App (Cst (Cop "not"), Cst (Cbool b)) -> Cst (Cbool (not b))
   | App (Abs (x,t1), t2) -> substitute t1 x t2
-  | App (t1,t2) ->
-      let t1' = reduce t1 in
-        if t1' != t1 then App (t1',t2)
-        else App (t1,reduce t2)
+  | App (t1,t2) -> let t1' = reduce t1 in App (t1',reduce t2)
   | Abs (x,t) -> Abs (x, reduce t)
   | Ifz (tcond, t1, t2) ->
       let tc = reduce tcond in
@@ -47,3 +48,13 @@ let rec reduce (lt : lterm) : lterm =
         else reduce t1
   | Ife (_, _, _) -> raise (NotImplemented "Ife")
   | Let (x, t1, t2) -> substitute t2 x t1
+
+(* Lambda term evaluation *)
+let eval (lt : lterm) : lterm =
+  let rec eval_loop (lt : lterm) (timeout : int) : lterm =
+    if (timeout < 3) then
+      eval_loop (reduce lt) (timeout+1)
+    else
+      lt
+  in
+    eval_loop lt 1

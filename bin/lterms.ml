@@ -7,6 +7,7 @@ let lterms = (Cst (Cbool true))::lterms
 
 let lterms = (Cst (Cop "not"))::lterms
 let lterms = (App (Cst (Cop "not"), Cst (Cbool true)))::lterms
+let lterms = (App (Cst (Cop "not"), App (Cst (Cop "not"), Cst (Cbool true))))::lterms
 let lterms = (App (Cst (Cop "not"), Cst (Cnat 42)))::lterms
 
 let lterms = (Cst (Cop "unknown_op"))::lterms
@@ -21,6 +22,9 @@ let lterms = (Cst (Cop "+"))::lterms
 let lterms = (App (Cst (Cop "+"), Cst (Cnat 42)))::lterms
 let lterms = (ex_add)::lterms
 let lterms = (ex_min)::lterms
+let lterms = (App (App (Cst (Cop "+"), Cst (Cnat 42)), ex_min))::lterms
+let lterms = (App (App (Cst (Cop "+"), ex_min), Cst (Cnat 42)))::lterms
+
 let lterms = (App (Cst (Cop "+"), Cst (Cbool false)))::lterms
 let lterms = (App (App (Cst (Cop "+"), Cst (Cnat 42)), Cst (Cbool false)))::lterms
 let lterms = (App (App (Cst (Cop "+"), Cst (Cbool false)), Cst (Cnat 42)))::lterms
