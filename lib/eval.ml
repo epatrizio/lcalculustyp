@@ -9,7 +9,7 @@ let rec get_free_nb_vars (lt : lterm) : string list =
   | App (t1, t2) -> get_free_nb_vars t1 @ get_free_nb_vars t2
   | Abs (x, t) -> List.filter (fun y -> x <> y) (get_free_nb_vars t)
   | Ifz (tcond, t1, t2) -> get_free_nb_vars tcond @ get_free_nb_vars t1 @ get_free_nb_vars t2
-  | Ife (_, _, _) -> raise (NotImplemented "Ife")
+  | Ife (tcond, t1, t2) -> get_free_nb_vars tcond @ get_free_nb_vars t1 @ get_free_nb_vars t2
   | Let (x, t1, t2) -> get_free_nb_vars t1 @ (List.filter (fun y -> x <> y) (get_free_nb_vars t2))
 
 (* Substitute v occurences by m in lt *)
@@ -26,7 +26,7 @@ let rec substitute (lt : lterm) (v : string) (m : lterm) : lterm =
 	      let t' = substitute t x (Var nv) in
 	        Abs (nv, substitute t' v m)
   | Ifz (tcond, t1, t2) -> Ifz (substitute tcond v m, substitute t1 v m, substitute t2 v m)
-  | Ife (_, _, _) -> raise (NotImplemented "Ife")
+  | Ife (tcond, t1, t2) -> Ife (substitute tcond v m, substitute t1 v m, substitute t2 v m)
   | Let (x, t1, t2) ->
       if x = v then Let (x, substitute t1 v m, t2)
       else Let (x, substitute t1 v m, t2)
@@ -48,7 +48,10 @@ let rec reduce (lt : lterm) : lterm =
       let tc = reduce tcond in
         if tc = (Cst (Cnat 0)) then reduce t2
         else reduce t1
-  | Ife (_, _, _) -> raise (NotImplemented "Ife")
+  | Ife (tcond, t1, t2) ->
+      let tc = reduce tcond in
+        if tc = (Cst (Cop "[]")) then reduce t1
+        else reduce t2
   | Let (x, t1, t2) -> substitute t2 x t1
 
 (* Lambda term evaluation *)

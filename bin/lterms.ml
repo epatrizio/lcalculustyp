@@ -118,12 +118,14 @@ let lterms = (Ifz (Cst (Cnat 0), ex_add, ex_min))::lterms
 let lterms = (Ifz (ex_add, ex_add, ex_min))::lterms
 let lterms = (Ifz (ex_min, ex_add, ex_min))::lterms
 
-let lterms = (Ife (Cst (Cop "[]"), Cst (Cbool false), Cst (Cbool true)))::lterms
-let lterms = (Ife (Cst (Cop "[]"), Cst (Cbool false), Cst (Cnat 0)))::lterms
-let lterms = (Ife (Abs ("x", Var "x"), Cst (Cbool false), Cst (Cbool true)))::lterms
-let lterms = (Ife (ex_list_1, Cst (Cbool false), Cst (Cbool true)))::lterms
+let lterms = (Ife (Cst (Cop "[]"), Cst (Cbool true), Cst (Cbool false)))::lterms
+let lterms = (Ife (Cst (Cop "[]"), Cst (Cbool true), Cst (Cnat 0)))::lterms
+let lterms = (Ife (Abs ("x", Var "x"), Cst (Cbool true), Cst (Cbool false)))::lterms
+let lterms = (Ife (ex_list_1, Cst (Cbool true), Cst (Cbool false)))::lterms
 let lterms = (Ife (Cst (Cop "[]"), Abs ("x", Var "x"), Abs ("x", Abs ("y", Var "x"))))::lterms
 let lterms = (Ife (Cst (Cop "[]"), Abs ("x", Var "x"), ex_nat))::lterms
+let lterms = (Ife (ex_list_2, Cst (Cbool true), Cst (Cbool false)))::lterms
+let lterms = (Ife (ex_list_3, ex_add, ex_min))::lterms
 
 let lterms = (Cst (Cop "fix"))::lterms
 
