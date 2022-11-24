@@ -129,13 +129,18 @@ let lterms = (Ife (ex_list_3, ex_add, ex_min))::lterms
 
 let lterms = (Cst (Cop "fix"))::lterms
 
+let ex_fun : lterm =   (* fun x -> ((+ x) 42) *)
+  Let ("y", ex_add, Abs ("x", App( App (Cst (Cop "+"), Var "x"), Var "y")))
+
 let lterms = (Let ("x", Cst (Cbool true), Cst (Cop "not")))::lterms
 let lterms = (Let ("x", Cst (Cbool true), App (Cst (Cop "not"), Var "x")))::lterms
+let lterms = (Let ("x", App (Cst (Cop "not"), Cst (Cbool true)), App (Cst (Cop "not"), Var "x")))::lterms
 let lterms = (Let ("x", Cst (Cbool true), App (Cst (Cop "+"), Var "x")))::lterms
 let lterms = (Let ("x", Abs ("x", Var "x"), App (Var "x", Cst (Cnat 42))))::lterms
 let lterms = (Let ("x", App (Cst (Cop "+"), Cst (Cnat 40)), App (Var "x", Cst (Cbool false))))::lterms
 let lterms = (Let ("x", Cst (Cop "+"), App (Var "x", Cst (Cnat 42))))::lterms
-let lterms = (Let ("y", Cst (Cnat 42), Abs ("x", App( App (Cst (Cop "+"), Var "x"), Var "y"))))::lterms
+let lterms = (ex_fun)::lterms
+let lterms = (App (ex_fun, Cst (Cnat 10)))::lterms
 
 let lterms = (Cst (Cunit))::lterms
 
