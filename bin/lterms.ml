@@ -46,17 +46,22 @@ let lterms = (App (ex_nat, Abs ("x", Var "x")))::lterms
 let lterms = (App (ex_nat, ex_add))::lterms
 let lterms = (App (Abs ("y", Var "y"), ex_nat))::lterms
 
-let ex_list_1 : lterm =   (* 2::40::[] *)
+let ex_list_1 : lterm =   (* 0::1::2::[] *)
   App(
     App (
-      Cst (Cop "::"), Cst (Cnat 2)
+      Cst (Cop "::"), Cst (Cnat 0)
     ),
     App(
       App (
-        Cst (Cop "::"), Cst (Cnat 40)
+        Cst (Cop "::"), Cst (Cnat 1)
       ),
-      Cst (Cop "[]")
-    )    
+      App(
+        App (
+          Cst (Cop "::"), Cst (Cnat 2)
+        ),
+        Cst (Cop "[]")
+      )
+    )
   )
 
 let ex_list_2 : lterm =   (* 42::false::[] > KO *)
@@ -85,13 +90,31 @@ let ex_list_3 : lterm =   (* (40+2)::(42-42)::[] *)
     )    
   )
 
+let ex_list_4 : lterm =   (* list of lists ! *)
+  App(
+    App (
+      Cst (Cop "::"), ex_list_1
+    ),
+    App(
+      App (
+        Cst (Cop "::"), ex_list_3
+      ),
+      Cst (Cop "[]")
+    )    
+  )
+
 let lterms = (Cst (Cop "[]"))::lterms
 let lterms = (Cst (Cop "::"))::lterms
 let lterms = (App( App (Cst (Cop "::"), Cst (Cbool true)), Cst (Cop "[]")))::lterms
 let lterms = (App( App (Cst (Cop "::"), Cst (Cnat 42)), Cst (Cop "[]")))::lterms
+let lterms = (App (Cst (Cop "::"), Cst (Cnat 42)))::lterms
+let lterms = (App( App (Cst (Cop "::"), Cst (Cnat 42)), Cst (Cnat 0)))::lterms
 let lterms = (ex_list_1)::lterms
 let lterms = (ex_list_2)::lterms
 let lterms = (ex_list_3)::lterms
+let lterms = (App( App (Cst (Cop "::"), ex_list_1), Cst (Cop "[]")))::lterms
+let lterms = (ex_list_4)::lterms
+
 let lterms = (Cst (Cop "hd"))::lterms
 let lterms = (App (Cst (Cop "hd"), Cst (Cop "[]")))::lterms
 let lterms = (App (Cst (Cop "hd"), Cst (Cnat 42)))::lterms

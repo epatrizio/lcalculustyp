@@ -16,12 +16,19 @@ let new_eval_var = new_var "V"
 
 (* Lambda term pretty printer *)
 let rec print_term (t : lterm) : string =
+  let rec print_list (lt : lterm) (sep : bool) =
+    match lt with
+    | Cst (Cop "[]") -> ""
+    | App (App (Cst (Cop "::"), t1), t2) -> (if sep then "; " else "") ^ print_term t1 ^ print_list t2 true
+    | t -> "; -error-" ^ print_term t
+  in
   match t with
   | Cst (Cnat n) -> string_of_int n
   | Cst (Cbool b) -> string_of_bool b
   | Cst (Cunit) -> "()"
   | Cst (Cop sop) -> sop
   | Var x -> x
+  | App (App (Cst (Cop "::"), t1), t2) -> "[" ^ print_list (App (App (Cst (Cop "::"), t1), t2)) false ^ "]"
   | App (t1, t2) -> "(" ^ print_term t1 ^ " " ^ print_term t2 ^ ")"
   | Abs (x, t) -> "(fun " ^ x ^ " -> " ^ print_term t ^ ")"
   | Ifz (tcond, t1, t2) -> "ifz " ^ print_term tcond ^ " then " ^ print_term t1 ^ " else " ^ print_term t2
