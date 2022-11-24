@@ -141,6 +141,8 @@ let lterms = (Let ("x", App (Cst (Cop "+"), Cst (Cnat 40)), App (Var "x", Cst (C
 let lterms = (Let ("x", Cst (Cop "+"), App (Var "x", Cst (Cnat 42))))::lterms
 let lterms = (ex_fun)::lterms
 let lterms = (App (ex_fun, Cst (Cnat 10)))::lterms
+let lterms = (Let ("x", ex_list_3, App (Cst (Cop "hd"), Var "x")))::lterms
+let lterms = (Let ("x", ex_list_3, App (Cst (Cop "tl"), Var "x")))::lterms
 
 let lterms = (Cst (Cunit))::lterms
 
