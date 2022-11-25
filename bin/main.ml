@@ -12,7 +12,7 @@ let lterms_process (lt : lterm) : unit =
     let eq : equa_zip = ([], genere_equa lt (Var "goal") []) in
     let res = unification eq "goal" in (* inference *)
       printf "[Typing result] - %s : %s@." (print_term lt) (print_type res);
-      printf "[Eval result] %s@." (print_term (eval lt)) (* eval only if typing ok *)
+      printf "[Eval result] %s@." (print_term_eval (eval lt)) (* eval only if typing ok *)
   with
   | OperationNotFound err -> eprintf "\x1b[31m[Typing ERROR -- Operation not found]\x1b[0m %s@." err
   | UnifyError err -> eprintf "\x1b[31m[Typing ERROR -- impossible to unify]\x1b[0m %s : %s@." (print_term lt) err

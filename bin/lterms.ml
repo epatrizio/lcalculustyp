@@ -190,3 +190,6 @@ let lterms = (App (App (Cst (Cop ":="), App (Cst (Cop "ref"), Cst (Cbool true)))
 let lterms = (App (App (Cst (Cop ":="), App (Cst (Cop "ref"), Cst (Cbool true))), Cst (Cnat 42)))::lterms
 let lterms = (App (App (Cst (Cop ":="), App (Cst (Cop "ref"), Cst (Cnat 0))), ex_add))::lterms
 let lterms = (Let ("x", App (Cst (Cop "ref"), Cst (Cnat 0)), App (App (Cst (Cop ":="), Var "x"), Cst (Cnat 1))))::lterms
+let lterms = (Let ("x", App (Cst (Cop "ref"), Cst (Cnat 0)), App (App (Cst (Cop ":="), Var "x"), Cst (Cbool false))))::lterms
+let lterms = (Let ("x", App (Cst (Cop "ref"), ex_min), App (App (Cst (Cop ":="), Var "x"), Cst (Cnat 1))))::lterms
+let lterms = (Let ("x", App (Cst (Cop "ref"), ex_min), App (App (Cst (Cop ":="), Var "x"), Cst (Cbool false))))::lterms
