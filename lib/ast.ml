@@ -13,6 +13,7 @@ type lterm =
   | Ifz of lterm * lterm * lterm
   | Ife of lterm * lterm * lterm
   | Let of string * lterm * lterm
+  | Pair of lterm * lterm
 
 (* Types *)
 type typ =
@@ -23,6 +24,7 @@ type typ =
   | Arr of typ * typ
   | List of typ
   | Ref of typ
+  | Product of typ * typ
 
 (* Operation types *)
 module OperationTypeMap = Map.Make(String)

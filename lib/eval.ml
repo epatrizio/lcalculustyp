@@ -11,6 +11,7 @@ let rec get_free_nb_vars (lt : lterm) : string list =
   | Ifz (tcond, t1, t2) -> get_free_nb_vars tcond @ get_free_nb_vars t1 @ get_free_nb_vars t2
   | Ife (tcond, t1, t2) -> get_free_nb_vars tcond @ get_free_nb_vars t1 @ get_free_nb_vars t2
   | Let (x, t1, t2) -> get_free_nb_vars t1 @ (List.filter (fun y -> x <> y) (get_free_nb_vars t2))
+  | Pair (t1, t2) -> get_free_nb_vars t1 @ get_free_nb_vars t2
 
 (* Substitute v occurences by m in lt *)
 let rec substitute (lt : lterm) (v : string) (m : lterm) : lterm =
@@ -30,6 +31,7 @@ let rec substitute (lt : lterm) (v : string) (m : lterm) : lterm =
   | Let (x, t1, t2) ->
       if x = v then Let (x, substitute t1 v m, t2)
       else Let (x, substitute t1 v m, t2)
+  | Pair (t1,t2) -> Pair (substitute t1 v m, substitute t2 v m)
 
 (* Lambda term reduction *)
 let rec reduce (lt : lterm) : lterm =
@@ -53,6 +55,7 @@ let rec reduce (lt : lterm) : lterm =
         if tc = (Cst (Cop "[]")) then reduce t1
         else reduce t2
   | Let (x, t1, t2) -> substitute t2 x t1
+  | Pair (t1,t2) -> let t1' = reduce t1 in Pair (t1',reduce t2)
 
 (* Lambda term evaluation *)
 let eval (lt : lterm) : lterm =

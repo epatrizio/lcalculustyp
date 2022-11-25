@@ -22,6 +22,7 @@ let rec print_type (t : typ) : string =
   | Arr (t1, t2) -> "(" ^ print_type t1 ^ " -> " ^ print_type t2 ^ ")"
   | List t -> print_type t ^ " list"
   | Ref t -> print_type t ^ " ref"
+  | Product (t1, t2) -> "(" ^ print_type t1 ^ " * " ^ print_type t2 ^ ")"
 
 (* cherche le type d'une variable dans un environnement *)
 let rec cherche_type (v : string) (e : env) : typ =
@@ -48,6 +49,7 @@ let rec substitue_type (t : typ) (v : string) (t0 : typ) : typ =
   | Arr (t1, t2) -> Arr (substitue_type t1 v t0, substitue_type t2 v t0)
   | List t1 -> List (substitue_type t1 v t0)
   | Ref t1 -> Ref (substitue_type t1 v t0)
+  | Product (t1, t2) -> Product (substitue_type t1 v t0, substitue_type t2 v t0)
 
 (* remplace une variable par un type dans une liste d'équations*)
 let substitue_type_partout (e : equa) (v : string) (t0 : typ) : equa =
@@ -89,6 +91,11 @@ let rec genere_equa (lt : lterm) (ty : typ) (e : env) : equa =
       let eq1 : equa = genere_equa t1 (Var nv1) e in
       let eq2 : equa = genere_equa t2 (Var nv2) ((x, Var nv1)::e) in
         [(ty, Var nv2)] @ eq1 @ eq2
+  | Pair (t1, t2) ->
+      let nv1 : string = new_type_var () and nv2 : string = new_type_var () in
+      let eq1 : equa = genere_equa t1 (Var nv1) e in
+      let eq2 : equa = genere_equa t2 (Var nv2) e in
+        [(ty, Product (Var nv1, Var nv2))] @ eq1 @ eq2
 
 (* zipper d'une liste d'équations *)
 type equa_zip = equa * equa
@@ -148,3 +155,7 @@ let rec unification (e : equa_zip) (but : string) : typ =
   | (e1, (Ref t1, Ref t2)::e2) -> unification (e1, (t1, t2)::e2) but
   | (_, (Ref _, t)::_) -> raise (UnifyError ("type ref non-unifiable avec "^print_type t))
   | (_, (t, Ref _)::_) -> raise (UnifyError ("type ref non-unifiable avec "^print_type t))
+    (* Product *)
+  | (e1, (Product (t1,t2), Product (t3, t4))::e2) -> unification (e1, (t1, t3)::(t2, t4)::e2) but
+  | (_, (Product (_,_), t)::_) -> raise (UnifyError ("type produit non-unifiable avec "^print_type t))
+  | (_, (t, Product (_,_))::_) -> raise (UnifyError ("type produit non-unifiable avec "^print_type t))

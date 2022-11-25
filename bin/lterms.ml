@@ -193,3 +193,27 @@ let lterms = (Let ("x", App (Cst (Cop "ref"), Cst (Cnat 0)), App (App (Cst (Cop 
 let lterms = (Let ("x", App (Cst (Cop "ref"), Cst (Cnat 0)), App (App (Cst (Cop ":="), Var "x"), Cst (Cbool false))))::lterms
 let lterms = (Let ("x", App (Cst (Cop "ref"), ex_min), App (App (Cst (Cop ":="), Var "x"), Cst (Cnat 1))))::lterms
 let lterms = (Let ("x", App (Cst (Cop "ref"), ex_min), App (App (Cst (Cop ":="), Var "x"), Cst (Cbool false))))::lterms
+
+let lterms = (Pair (Cst (Cnat 0), Cst (Cnat 1)))::lterms
+let lterms = (Pair (Cst (Cnat 0), Cst (Cbool true)))::lterms
+let lterms = (Pair (App (Cst (Cop "not"), Cst (Cbool true)), ex_add))::lterms
+let lterms = (Pair (Cst (Cop "[]"), Cst (Cnat 1)))::lterms
+let lterms = (Pair (Cst (Cbool false), ex_list_1))::lterms
+let lterms = (Pair (Cst (Cbool true), Pair (Cst (Cnat 0), Cst (Cnat 1))))::lterms
+let lterms = (Pair (Pair (Cst (Cnat 0), Cst (Cnat 1)), Cst (Cbool true)))::lterms
+let lterms = (
+  Let ("x",App (Cst (Cop "ref"), Pair (Cst (Cnat 0), Cst (Cbool true))),
+  App (App (Cst (Cop ":="), Var "x"), Pair (Cst (Cnat 1), Cst (Cbool false)))))::lterms
+let lterms = (
+  Let ("x",App (Cst (Cop "ref"), Pair (Cst (Cnat 0), Cst (Cbool true))),
+  App (App (Cst (Cop ":="), Var "x"), Pair (Cst (Cbool false), Cst (Cnat 1)))))::lterms
+let lterms = (
+  Let ("x",App (Cst (Cop "ref"), Pair (Cst (Cnat 0), Cst (Cbool true))),
+  App (App (Cst (Cop ":="), Var "x"), Cst (Cnat 1))))::lterms
+let lterms = (
+  Let ("x",App (Cst (Cop "ref"), Pair (Cst (Cbool true), Pair (Cst (Cnat 0), Cst (Cnat 1)))),
+  App (App (Cst (Cop ":="), Var "x"), Pair (Cst (Cbool false), Pair (Cst (Cnat 1), Cst (Cnat 0))))))::lterms
+let lterms = (
+  Let ("x",App (Cst (Cop "ref"), Pair (Cst (Cbool true), Pair (Cst (Cnat 0), Cst (Cnat 1)))),
+  App (App (Cst (Cop ":="), Var "x"), Pair (Pair (Cst (Cbool false), Cst (Cnat 0)), Cst (Cnat 1)))))::lterms
+  
