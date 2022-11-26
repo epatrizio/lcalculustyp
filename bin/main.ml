@@ -9,8 +9,8 @@ open Lib.Utils
 
 let lterms_process (lt : lterm) : unit =
   try
-    let eq : equa_zip = ([], genere_equa lt (Var "goal") []) in
-    let res = unification eq "goal" in (* inference *)
+    let eq : equa_zip = ([], generate_equa lt (Var "goal") []) in
+    let res = unify eq "goal" in (* inference *)
       printf "[Typing result] - %s : %s@." (print_term lt) (print_type res);
       printf "[Eval result] %s@." (print_term_eval (eval lt)) (* eval only if typing ok *)
   with
