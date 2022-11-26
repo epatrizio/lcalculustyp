@@ -36,6 +36,9 @@ let rec var_type_check (v : string) (t : typ) : bool =
   match t with
   | Var v1 when v1 = v -> true
   | Arr (t1, t2) -> (var_type_check v t1) || (var_type_check v t2)
+  | List t -> var_type_check v t
+  | Ref t -> var_type_check v t
+  | Product (t1, t2) -> (var_type_check v t1) || (var_type_check v t2)
   | _ -> false
 
 (* Substitue a variable with a type in a type *)
